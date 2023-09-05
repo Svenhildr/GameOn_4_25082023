@@ -50,6 +50,7 @@ btnSubmit.addEventListener("click", (e) => {
   );
 
   let selectedValue = null;
+  //coucou
 
   // Parcourez les boutons radio pour trouver celui qui est sélectionné
   radioButtons.forEach((radioButton) => {
