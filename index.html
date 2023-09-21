@@ -29,6 +29,7 @@
     </div>
     </div>
   </div>
+  
     <main>
       <div class="hero-section">
         <div class="hero-content">
@@ -57,6 +58,7 @@
           <span class="close"></span>
           <div class="modal-body">
             <form
+              id="modal-form"
               name="reserve"
               action="index.html"
               method="get"
@@ -72,6 +74,7 @@
                   name="first"
                   minlength="2"
                 /><br>
+                <p id="first-error"></p>
               </div>
               <div
                 class="formData">
@@ -82,6 +85,7 @@
                   id="last"
                   name="last"
                 /><br>
+                <p id="last-error"></p>
               </div>
               <div
                 class="formData">
@@ -92,6 +96,7 @@
                   id="email"
                   name="email"
                 /><br>
+                <p id="email-error"></p>
               </div>
               <div
                 class="formData">
@@ -102,11 +107,13 @@
                   id="birthdate"
                   name="birthdate"
                 /><br>
+                <p id="birthdate-error"></p>
               </div>
               <div
                 class="formData">
                 <label>À combien de tournois GameOn avez-vous déjà participé ?</label><br>
                 <input type="number" class="text-control" id="quantity" name="quantity" min="0" max="99">
+                <p id="quantity-error"></p>
               </div>
               <p class="text-label">A quel tournoi souhaitez-vous participer cette année ?</p>
               <div
@@ -177,6 +184,7 @@
                   <span class="checkbox-icon"></span>
                   Portland</label
                 >
+                <p id="location-error"></p>
               </div>
 
               <div
@@ -195,8 +203,9 @@
                 <input class="checkbox-input" type="checkbox" id="checkbox2" />
                 <label class="checkbox2-label" for="checkbox2">
                   <span class="checkbox-icon"></span>
-                  Je Je souhaite être prévenu des prochains évènements.
+                  Je souhaite être prévenu des prochains évènements.
                 </label>
+                <p id="checkbox1-error"></p>
                 <br>
               </div>
               <input

@@ -1,3 +1,57 @@
+const nameRegex = /^[a-zA-Z]{2,}$/;
+const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const birthdateRegex =
+  /^(?:19|20)\d\d-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$/;
+const quantityRegex = /^\d+$/;
+
+const formValues = [
+  {
+    type: "",
+    formInput: document.getElementById("first"),
+    regex: nameRegex,
+    errorMessage: "Veuillez entrer 2 caractères ou plus pour le champ du nom.",
+  },
+  {
+    type: "",
+    formInput: document.getElementById("last"),
+    regex: nameRegex,
+    errorMessage: "Veuillez entrer 2 caractères ou plus pour le champ du nom.",
+  },
+  {
+    type: "",
+    formInput: document.getElementById("email"),
+    regex: emailRegex,
+    errorMessage: "Veuillez entrer une adresse mail valide",
+  },
+  {
+    type: "",
+    formInput: document.getElementById("birthdate"),
+    regex: birthdateRegex,
+    errorMessage: "Vous devez entrer votre date de naissance.",
+  },
+  {
+    type: "",
+    formInput: document.getElementById("quantity"),
+    regex: quantityRegex,
+    errorMessage: "Vous devez entrer un nombre valide de participations.",
+  },
+  {
+    type: "location",
+    formInput: document.querySelector(
+      'input[type="radio"][name="location"]:checked'
+    ),
+    regex: null,
+    errorMessage: "Vous devez choisir une option.",
+  },
+  {
+    type: "checkbox",
+    formInput: document.getElementById("checkbox1"),
+    regex: null,
+    errorMessage:
+      "Vous devez vérifier que vous acceptez les termes et conditions.",
+  },
+];
+
 function editNav() {
   var x = document.getElementById("myTopnav");
   if (x.className === "topnav") {
@@ -23,166 +77,122 @@ modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
 function launchModal() {
   modalbg.style.display = "block";
 }
-//
 
 //Récupere la croix du HTML
 const modalBtnClose = document.querySelector(".close");
-// console.log(modalBtnClose);
+const modalForm = document.getElementById("modal-form");
 
 modalBtnClose.addEventListener("click", () => {
-  // console.log("clique");
+  modalForm.style.display = "block";
+
+  const message = document.querySelector(".message-success");
+  const btnClose = document.querySelector(".btn-submit-close");
+
+  if (message && btnClose) {
+    message.remove();
+    btnClose.remove();
+  }
+
   modalbg.style.display = "none";
 });
-
-const nameRegex =
-  /^([a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]) {2,}([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)/;
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-const birtdateRegex = /^([0-2][0-9]|(3)[0-1])(((0)[0-9])|((1)[0-2]))\d{4}$/;
-const quantityRegex = /^[0-9]*$/;
 
 let btnSubmit = document.querySelector(".btn-submit");
 btnSubmit.addEventListener("click", (e) => {
   e.preventDefault();
-  //récupération des éléments du DOM
 
-  const radioButtons = document.querySelectorAll(
-    'input[type="radio"][name="location"]'
+  const selectedLocation = document.querySelector(
+    'input[type="radio"][name="location"]:checked'
   );
 
-  let selectedValue = null;
-  //coucou
-
-  // Parcourez les boutons radio pour trouver celui qui est sélectionné
-  radioButtons.forEach((radioButton) => {
-    if (radioButton.checked) {
-      selectedLocation = radioButton.value;
-    }
-  });
-
+  const locationField = formValues.find(
+    (formValue) => formValue.type === "location"
+  );
+  if (locationField) {
+    locationField.formInput = selectedLocation;
+  }
   // Ajoutez la valeur du bouton radio sélectionné à formValues
+  let isOk = checkEntriesValues(formValues);
 
-  const formValues = [
-    {
-      formValue: document.getElementById("first").value,
-      regex: nameRegex,
-      errorMessage:
-        "Veuillez entrer 2 caractères ou plus pour le champ du nom.",
-    },
-    {
-      formValue: document.getElementById("last").value,
-      regex: nameRegex,
-      errorMessage:
-        "Veuillez entrer 2 caractères ou plus pour le champ du nom.",
-    },
-    {
-      formValue: document.getElementById("email").value,
-      regex: emailRegex,
-      errorMessage: "Veuillez entrer une adresse mail valide",
-    },
-    {
-      formValue: document.getElementById("birthdate").value,
-      regex: birtdateRegex,
-      errorMessage: "Vous devez entrer votre date de naissance.",
-    },
-    {
-      formValue: document.getElementById("quantity").value,
-      regex: quantityRegex,
-      errorMessage: "Vous devez entrer un nombre valide de participations.",
-    },
-    {
-      formValue: document.getElementById("checkbox1").value,
-      regex: null,
-      errorMessage:
-        "Vous devez vérifier que vous acceptez les termes et conditions.",
-    },
-  ];
+  if (isOk) {
+    modalForm.reset();
 
-  formValues.push({
-    formValue: selectedLocation,
-    regex: null,
-    errorMessage: "Vous devez choisir une option.",
-  });
-  console.log(formValues);
+    // Le formulaire est valide, masquer le formulaire et afficher le message de succès
+    const modalBody = document.querySelector(".modal-body");
+    modalForm.style.display = "none";
+    let message = document.createElement("p");
+    message.innerHTML = "Merci pour votre inscription";
+    message.classList.add("message-success");
+    modalBody.appendChild(message);
+
+    let formCloseBtn = document.createElement("button");
+    formCloseBtn.textContent = "Fermer";
+    formCloseBtn.classList.add("btn-submit");
+    formCloseBtn.classList.add("btn-submit-close");
+    modalBody.appendChild(formCloseBtn);
+
+    formCloseBtn.addEventListener("click", (e) => {
+      modalForm.style.display = "block";
+      document.querySelector(".message-success").remove();
+      document.querySelector(".btn-submit-close").remove();
+      modalbg.style.display = "none";
+    });
+  }
 });
 
 /**
  * vérifie les valeurs entrées dans le formulaire
- * @param {}
- * @returns {boolean} -si true, tous les champs sont corrects
+ * @param {array}
+ * @returns {boolean} -si true, tous les champs sont corrects, si false si au moins 1 champs est incorrect
  */
-function checkEntriesValues() {}
-
-/* regex formulaire kanap
-
-    
-
-    const addressRegex =
-      /^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ\s\,\'\-]*$/;
-
-    //code postal + ville
-    const cityRegex =
-      /^([0-9]{5}).[a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)?$/;
-
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-        //on récupère les éléments du DOM
-    let firstNameForm = document.getElementById("firstName");
-    let lastNameForm = document.getElementById("lastName");
-    let addressForm = document.getElementById("address");
-    let cityForm = document.getElementById("city");
-    let emailForm = document.getElementById("email");
-
-    // Vérifie le prénom
-    firstNameForm.addEventListener("change", (e) => {
-      textInput(nameRegex, firstNameForm.value, "firstNameErrorMsg");
-    });
-
-    // Vérifie nom de famille
-    lastNameForm.addEventListener("change", (e) => {
-      textInput(nameRegex, lastNameForm.value, "lastNameErrorMsg");
-    });
-
-    // Vérifie l'addresse
-    addressForm.addEventListener("change", (e) => {
-      textInput(addressRegex, addressForm.value, "addressErrorMsg");
-    });
-
-    // Vérifie le code postal et la ville
-    cityForm.addEventListener("change", (e) => {
-      textInput(cityRegex, cityForm.value, "cityErrorMsg");
-    });
-
-    // Vérifie l'email
-    emailForm.addEventListener("change", (e) => {
-      textInput(emailRegex, emailForm.value, "emailErrorMsg");
-    });
-
-    //récupère le bouton dans le DOM et fait un eventListener au click
-    let button = document.getElementById("order");
-    button.addEventListener("click", postForm);
-
-    //contrôle des paramètres regex, valeur et messages d'erreur pour valider un champs
-    function textInput(regex, value, idError) {
-      if (!regex.test(value)) {
-        msgError(idError);
-        return false;
-      } else {
-        clearError(idError);
-        return true;
-      }
-    }
-
-    function testAllInput() {
+function checkEntriesValues(formValues) {
+  let resultTest = true;
+  for (const formValue of formValues) {
+    if (formValue.regex) {
       if (
-        textInput(nameRegex, firstNameForm.value, "firstNameErrorMsg") &&
-        textInput(nameRegex, lastNameForm.value, "lastNameErrorMsg") &&
-        textInput(addressRegex, addressForm.value, "addressErrorMsg") &&
-        textInput(cityRegex, cityForm.value, "cityErrorMsg") &&
-        textInput(emailRegex, emailForm.value, "emailErrorMsg")
+        !formValue.formInput ||
+        !formValue.regex.test(formValue.formInput.value)
       ) {
-        return true;
+        showMessageError(formValue.formInput, formValue.errorMessage);
+        resultTest = false;
       } else {
-        return false;
+        hideMessageError(`${formValue.formInput.id}-error`);
+      }
+    } else {
+      //si pas regex test des valeurs radio +  checkbox
+      if (!formValue.formInput || !formValue.formInput.checked) {
+        showMessageError(formValue.formInput, formValue.errorMessage);
+        resultTest = false;
+      } else {
+        let id;
+        if (formValue.type === "location") {
+          id = "location-error";
+        } else {
+          id = `${formValue.formInput.id}-error`;
+        }
+        hideMessageError(id);
       }
     }
-    */
+  }
+  console.log(formValues);
+
+  // Vérifieries i CGU son checken -si non showMesseg +  resultTest = false;
+  return resultTest;
+}
+
+function showMessageError(inputError, errorMessage) {
+  let id;
+  if (!inputError) {
+    id = "location-error";
+  } else {
+    id = `${inputError.id}-error`;
+  }
+  let errorElt = document.getElementById(id);
+  errorElt.style.display = "block";
+  errorElt.textContent = errorMessage;
+}
+
+function hideMessageError(idError) {
+  let errorElt = document.getElementById(idError);
+  errorElt.textContent = "";
+  errorElt.remove();
+}
