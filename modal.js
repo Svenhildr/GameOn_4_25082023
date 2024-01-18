@@ -1,7 +1,16 @@
+//regex
 const nameRegex = /^[a-zA-Z]{2,}$/;
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const birthdateRegex = /^(?:19|20)\d\d-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$/;
 const quantityRegex = /^\d+$/;
+
+// DOM Elements
+const modalbg = document.querySelector(".bground");
+const modalBtn = document.querySelectorAll(".modal-btn");
+const formData = document.querySelectorAll(".formData");
+const modalBtnClose = document.querySelector(".close");
+const modalForm = document.getElementById("modal-form");
+const btnSubmit = document.querySelector(".btn-submit");
 
 const formValues = [
     {
@@ -49,18 +58,13 @@ const formValues = [
 ];
 
 function editNav() {
-    var x = document.getElementById("myTopnav");
+    let x = document.getElementById("myTopnav");
     if (x.className === "topnav") {
         x.className += " responsive";
     } else {
         x.className = "topnav";
     }
 }
-
-// DOM Elements
-const modalbg = document.querySelector(".bground");
-const modalBtn = document.querySelectorAll(".modal-btn");
-const formData = document.querySelectorAll(".formData");
 
 // launch modal event
 modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
@@ -74,11 +78,23 @@ function launchModal() {
     modalbg.style.display = "block";
 }
 
-//Récupere la croix du HTML
-const modalBtnClose = document.querySelector(".close");
-const modalForm = document.getElementById("modal-form");
-
+/**launch modal form
+ * permet de fermer la modale
+ *
+ * @returns {void}
+ */
 modalBtnClose.addEventListener("click", () => {
+    modalbg.style.display = "none";
+});
+
+/**
+ * gère la fermeture de la fermeture de la modale en cliquant sur la croix
+ * permet aussi de fermer le message de succes
+ *
+ * @returns {void}
+ */
+
+function closeAndResetModal() {
     modalForm.style.display = "block";
 
     const message = document.querySelector(".message-success");
@@ -90,46 +106,87 @@ modalBtnClose.addEventListener("click", () => {
     }
 
     modalbg.style.display = "none";
+}
+
+//listener pour les elts input
+formValues.forEach((element) => {
+    addInputEventListener(element);
 });
 
-let btnSubmit = document.querySelector(".btn-submit");
-btnSubmit.addEventListener("click", (e) => {
+//listener sur le bouton de soumission pour envoyer le formulaire
+modalForm.addEventListener("submit", (e) => {
+    handleSubmit(e);
+});
+
+//gestionnaire de siumission de formulaire
+function handleSubmit(e) {
     e.preventDefault();
 
     const selectedLocation = document.querySelector('input[type="radio"][name="location"]:checked');
 
+    // stock l'élément radio choisi pour la localisation
+
     const locationField = formValues.find((formValue) => formValue.type === "location");
+
     if (locationField) {
         locationField.formInput = selectedLocation;
     }
-    // Ajoutez la valeur du bouton radio sélectionné à formValues
+
+    // Ajoute la valeur du bouton radio sélectionné à formValues
     let isOk = checkEntriesValues(formValues);
 
     if (isOk) {
-        modalForm.reset();
+        handleSuccess(e);
+        console.log("formulaire envoyé avec succès !");
+    }
+}
 
-        // Le formulaire est valide, masquer le formulaire et afficher le message de succès
-        const modalBody = document.querySelector(".modal-body");
-        modalForm.style.display = "none";
-        let message = document.createElement("p");
-        message.innerHTML = "Merci pour votre inscription";
-        message.classList.add("message-success");
-        modalBody.appendChild(message);
-
-        let formCloseBtn = document.createElement("button");
-        formCloseBtn.textContent = "Fermer";
-        formCloseBtn.classList.add("btn-submit");
-        formCloseBtn.classList.add("btn-submit-close");
-        modalBody.appendChild(formCloseBtn);
-
-        formCloseBtn.addEventListener("click", (e) => {
-            modalForm.style.display = "block";
-            document.querySelector(".message-success").remove();
-            document.querySelector(".btn-submit-close").remove();
-            modalbg.style.display = "none";
+function addInputEventListener(formValue) {
+    if (formValue.formInput) {
+        formValue.formInput.addEventListener("input", () => {
+            if (formValue.formInput) {
+                checkEntriesValues(formValues);
+            }
         });
     }
-});
+}
+
+function closeAndResetModal() {
+    modalForm.style.display = "block";
+    const message = document.querySelector(".message-success");
+    const btnClose = document.querySelector(".btn-submit-close");
+
+    if (message && btnClose) {
+        message.remove();
+        btnClose.remove();
+    }
+}
+
+function handleSuccess(e) {
+    modalForm.reset();
+
+    // Le formulaire est valide, masque le formulaire et affiche le message de succès
+    const modalBody = document.querySelector(".modal-body");
+    modalForm.style.display = "none";
+
+    let message = document.createElement("p");
+    message.innerHTML = "Merci pour votre inscription";
+    message.classList.add("message-success");
+    modalBody.appendChild(message);
+
+    let formCloseBtn = document.createElement("button");
+    formCloseBtn.textContent = "Fermer";
+    formCloseBtn.classList.add("btn-submit");
+    formCloseBtn.classList.add("btn-submit-close");
+    modalBody.appendChild(formCloseBtn);
+
+    formCloseBtn.addEventListener("click", (e) => {
+        modalForm.style.display = "block";
+        document.querySelector(".message-success").remove();
+        document.querySelector(".btn-submit-close").remove();
+        modalbg.style.display = "none";
+    });
+}
 
 /**
  * vérifie les valeurs entrées dans le formulaire
@@ -138,54 +195,57 @@ btnSubmit.addEventListener("click", (e) => {
  */
 function checkEntriesValues(formValues) {
     let resultTest = true;
-    for (const formValue of formValues) {
-        if (formValue.regex) {
-            if (!formValue.formInput || !formValue.regex.test(formValue.formInput.value)) {
-                showMessageError(formValue.formInput, formValue.errorMessage);
-                resultTest = false;
-            } else {
-                hideMessageError(`${formValue.formInput.id}-error`);
-            }
+
+    for (const { formInput, regex, type, errorMessage } of formValues) {
+        const isValid = regex ? formInput && regex.test(formInput.value) : formInput && formInput.checked;
+
+        if (!isValid) {
+            showMessageError(formInput, errorMessage);
+            resultTest = false;
+        } else if (type === "checkbox" && !formInput.checked) {
+            showMessageError(formInput, errorMessage);
+            resultTest = false;
         } else {
-            //si pas regex test des valeurs radio +  checkbox
-            if (!formValue.formInput || !formValue.formInput.checked) {
-                showMessageError(formValue.formInput, formValue.errorMessage);
-                resultTest = false;
-            } else {
-                let id;
-                if (formValue.type === "location") {
-                    id = "location-error";
-                } else if (formValue.type === "checkbox") {
-                    id = "checkbox1-error";
-                } else {
-                    id = `${formValue.formInput.id}-error`;
-                }
-                hideMessageError(id);
-            }
+            const id = type === "location" ? "location-error" : type === "checkbox" ? "checkbox1-error" : `${formInput.id}-error`;
+            hideMessageError(id);
         }
     }
-    console.log(formValues);
 
-    // Vérifieries i CGU son checken -si non showMesseg +  resultTest = false;
     return resultTest;
 }
 
-function showMessageError(inputError, errorMessage) {
-    let id;
-    if (!inputError) {
-        id = "location-error";
+/**
+ * Affiche un message d'erreur pour l'entrée spécifiée
+ *
+ * @param {HTMLElement} inputError - L'élément d'entrée pour lequel afficher l'erreur
+ * @param {string} errorMessage - Le message d'erreur à afficher
+ * @returns {void}
+ */
+
+function showMessageError(formInput, errorMessage) {
+    let idFormError = formInput ? `${formInput.id}-error` : "location-error";
+    let errorElt = document.getElementById(idFormError);
+
+    if (!errorElt) {
+        errorElt.style.display = "none";
+        errorElt.textContent = "";
     } else {
-        id = `${inputError.id}-error`;
+        errorElt.style.display = "block";
+        errorElt.textContent = errorMessage;
     }
-    let errorElt = document.getElementById(id);
-    errorElt.style.display = "block";
-    errorElt.textContent = errorMessage;
 }
+
+/**
+ * Cache le message d'erreur pour l'ID spécifié
+ *
+ * @param {string} idError - L'ID de l'élément d'erreur à cacher
+ * @returns {void}
+ */
 
 function hideMessageError(idError) {
     let errorElt = document.getElementById(idError);
     if (errorElt) {
         errorElt.textContent = "";
-        errorElt.remove();
+        errorElt.style.display = "none";
     }
 }
