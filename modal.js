@@ -79,7 +79,7 @@ function launchModal() {
 }
 
 /**launch modal form
- * permet de fermer la modale
+ * permet de fermer la modale au click sur la croix
  *
  * @returns {void}
  */
@@ -151,17 +151,6 @@ function addInputEventListener(formValue) {
     }
 }
 
-function closeAndResetModal() {
-    modalForm.style.display = "block";
-    const message = document.querySelector(".message-success");
-    const btnClose = document.querySelector(".btn-submit-close");
-
-    if (message && btnClose) {
-        message.remove();
-        btnClose.remove();
-    }
-}
-
 function handleSuccess(e) {
     modalForm.reset();
 
@@ -226,10 +215,7 @@ function showMessageError(formInput, errorMessage) {
     let idFormError = formInput ? `${formInput.id}-error` : "location-error";
     let errorElt = document.getElementById(idFormError);
 
-    if (!errorElt) {
-        errorElt.style.display = "none";
-        errorElt.textContent = "";
-    } else {
+    if (errorElt) {
         errorElt.style.display = "block";
         errorElt.textContent = errorMessage;
     }
