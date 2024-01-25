@@ -85,6 +85,7 @@ function launchModal() {
  */
 modalBtnClose.addEventListener("click", () => {
     modalbg.style.display = "none";
+    closeAndResetModal();
 });
 
 /**
@@ -99,6 +100,7 @@ function closeAndResetModal() {
 
     const message = document.querySelector(".message-success");
     const btnClose = document.querySelector(".btn-submit-close");
+    const modalBtnClose = document.querySelector(".close");
 
     if (message && btnClose) {
         message.remove();
@@ -113,15 +115,14 @@ formValues.forEach((element) => {
     addInputEventListener(element);
 });
 
+addInputRadioListener();
+
 //listener sur le bouton de soumission pour envoyer le formulaire
 modalForm.addEventListener("submit", (e) => {
     handleSubmit(e);
 });
 
-//gestionnaire de siumission de formulaire
-function handleSubmit(e) {
-    e.preventDefault();
-
+function checkBtnRadio() {
     const selectedLocation = document.querySelector('input[type="radio"][name="location"]:checked');
 
     // stock l'élément radio choisi pour la localisation
@@ -131,6 +132,13 @@ function handleSubmit(e) {
     if (locationField) {
         locationField.formInput = selectedLocation;
     }
+}
+
+//gestionnaire de siumission de formulaire
+function handleSubmit(e) {
+    e.preventDefault();
+
+    checkBtnRadio();
 
     // Ajoute la valeur du bouton radio sélectionné à formValues
     let isOk = checkEntriesValues(formValues);
@@ -147,6 +155,16 @@ function addInputEventListener(formValue) {
             if (formValue.formInput) {
                 checkEntriesValues(formValues);
             }
+        });
+    }
+}
+
+function addInputRadioListener() {
+    const radioBtn = document.querySelectorAll(".checkbox-input[type ='radio']");
+    for (const radio of radioBtn) {
+        radio.addEventListener("input", () => {
+            checkBtnRadio();
+            checkEntriesValues(formValues);
         });
     }
 }
@@ -170,10 +188,7 @@ function handleSuccess(e) {
     modalBody.appendChild(formCloseBtn);
 
     formCloseBtn.addEventListener("click", (e) => {
-        modalForm.style.display = "block";
-        document.querySelector(".message-success").remove();
-        document.querySelector(".btn-submit-close").remove();
-        modalbg.style.display = "none";
+        closeAndResetModal();
     });
 }
 
