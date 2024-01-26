@@ -239,7 +239,7 @@ function showMessageError(formInput, errorMessage) {
 /**
  * Cache le message d'erreur pour l'ID spécifié
  *
- * @param {string} idError - L'ID de l'élément d'erreur à cacher
+ * @param {string} idError - L'ID de l'élément d'erreur à cacher.
  * @returns {void}
  */
 
