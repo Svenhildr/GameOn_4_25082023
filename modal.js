@@ -95,6 +95,7 @@ modalBtnClose.addEventListener("click", () => {
  * @returns {void}
  */
 
+<<<<<<< HEAD
 function closeAndResetModal() {
     modalForm.style.display = "block";
 
@@ -250,3 +251,6 @@ function hideMessageError(idError) {
         errorElt.style.display = "none";
     }
 }
+=======
+
+>>>>>>> main
